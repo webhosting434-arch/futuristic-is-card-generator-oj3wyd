@@ -1,0 +1,410 @@
+l<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Futuristic ID Card Generator</title>
+    <!-- Menggunakan html2canvas untuk fitur download gambar -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #00e676;
+            --bg-dark: #0f1115;
+            --card-bg: #13171e;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-dark);
+            color: #ffffff;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px var(--primary-color);
+        }
+
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            justify-content: center;
+            width: 100%;
+            max-width: 1000px;
+        }
+
+        /* Panel Input Form */
+        .form-panel {
+            background: #1a1f29;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+            flex: 1;
+            min-width: 300px;
+            max-width: 450px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+            color: #b3b3b3;
+        }
+
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 10px;
+            background: #252c3a;
+            border: 1px solid #384457;
+            border-radius: 8px;
+            color: white;
+            box-sizing: border-box;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        /* Preview Panel */
+        .preview-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* ID CARD DESIGN */
+        #id-card {
+            width: 450px;
+            height: 270px;
+            background-color: var(--card-bg);
+            border-radius: 18px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        /* Background efek garis futuristik / topografi tiruan */
+        #id-card::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 250px;
+            height: 250px;
+            background: radial-gradient(circle, rgba(var(--color-rgb), 0.15) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        /* Garis menyala bagian bawah kartu */
+        .card-glow-line {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 12px;
+            background: linear-gradient(90deg, var(--primary-color), transparent);
+            opacity: 0.8;
+        }
+
+        /* Header Kartu */
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .brand-title {
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            text-shadow: 0px 0px 8px rgba(var(--color-rgb), 0.6);
+        }
+
+        /* Konten Utama */
+        .card-body {
+            display: flex;
+            gap: 15px;
+            height: 160px;
+        }
+
+        /* Foto Profil */
+        .profile-box {
+            width: 120px;
+            height: 150px;
+            background: #1c212c;
+            border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        /* Menyembunyikan elemen img kosong bawaan browser */
+        .profile-box img[src=""], .profile-box img:not([src]) {
+            display: none;
+        }
+
+        .profile-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Info User */
+        .info-box {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .user-name {
+            font-size: 20px;
+            font-weight: 700;
+            margin: 0 0 4px 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .user-label {
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--primary-color);
+            margin-bottom: 12px;
+            font-weight: bold;
+        }
+
+        .user-address {
+            font-size: 11px;
+            color: #a0aec0;
+            line-height: 1.4;
+            max-height: 50px;
+            overflow: hidden;
+        }
+
+        /* QR Code Area - Default disamarkan dengan background kartu jika kosong */
+        .qr-box {
+            width: 90px;
+            height: 90px;
+            background: transparent;
+            border-radius: 8px;
+            padding: 5px;
+            box-sizing: border-box;
+            align-self: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        /* Ketika ada gambar di dalam QR box, berikan background putih & efek glow */
+        .qr-box.active {
+            background: white;
+            box-shadow: 0 0 15px rgba(var(--color-rgb), 0.3);
+        }
+
+        /* Menyembunyikan tag img kosong pada QR */
+        .qr-box img[src=""], .qr-box img:not([src]) {
+            display: none;
+        }
+
+        .qr-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        /* Tombol Download */
+        .btn-download {
+            margin-top: 20px;
+            background: var(--primary-color);
+            color: black;
+            border: none;
+            padding: 12px 30px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            max-width: 450px;
+            text-align: center;
+        }
+
+        .btn-download:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(var(--color-rgb), 0.4);
+        }
+
+        /* Dekorasi tambahan ala sirkuit/cyber */
+        .deco-dots {
+            position: absolute;
+            bottom: 25px;
+            right: 20px;
+            font-size: 8px;
+            color: #384457;
+            letter-spacing: 2px;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Futuristic ID Card Generator</h2>
+
+    <div class="container">
+        <!-- Panel Kiri: Input Data -->
+        <div class="form-panel">
+            <div class="form-group">
+                <label for="input-brand">Nama Aplikasi Atas (Kosongkan jika tidak mau)</label>
+                <input type="text" id="input-brand" value="WhatsApp" oninput="updateCard()">
+            </div>
+            <div class="form-group">
+                <label for="input-name">Nama Lengkap</label>
+                <input type="text" id="input-name" value="Nicky" oninput="updateCard()">
+            </div>
+            <div class="form-group">
+                <label for="input-address">Alamat / Bio Singkat</label>
+                <textarea id="input-address" rows="2" oninput="updateCard()">0812-3456-7890&#10;Jakarta, Indonesia</textarea>
+            </div>
+            <div class="form-group">
+                <label for="input-color">Tema Warna Kartu</label>
+                <select id="input-color" onchange="changeColor()">
+                    <option value="#00e676" data-rgb="0, 230, 118">WhatsApp Green (Hijau)</option>
+                    <option value="#00b0ff" data-rgb="0, 176, 255">Cyber Blue (Biru)</option>
+                    <option value="#ff1744" data-rgb="255, 23, 68">Neon Red (Merah)</option>
+                    <option value="#d500f9" data-rgb="213, 0, 249">Purple Haze (Ungu)</option>
+                    <option value="#ffea00" data-rgb="255, 234, 0">Gold Cyber (Kuning)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="upload-photo">Upload Foto Profil</label>
+                <input type="file" id="upload-photo" accept="image/*" onchange="previewImage(this, 'photo-img', 'profile-box')">
+            </div>
+            <div class="form-group">
+                <label for="upload-qr">Upload QR Code</label>
+                <input type="file" id="upload-qr" accept="image/*" onchange="previewImage(this, 'qr-img', 'qr-box')">
+            </div>
+        </div>
+
+        <!-- Panel Kanan: Live Preview & Tombol -->
+        <div class="preview-panel">
+            <!-- Tampilan Kartu -->
+            <div id="id-card" style="--primary-color: #00e676; --color-rgb: 0, 230, 118;">
+                <div class="card-header">
+                    <span class="brand-title" id="card-brand">WhatsApp</span>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="var(--primary-color)" style="opacity: 0.8;">
+                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/>
+                        <circle cx="12" cy="12" r="4" />
+                    </svg>
+                </div>
+                
+                <div class="card-body">
+                    <!-- Ditambahkan style background penyesuaian jika foto kosong -->
+                    <div class="profile-box" id="profile-box" style="background: #1c212c;">
+                        <img id="photo-img" src="" alt="Foto">
+                    </div>
+                    
+                    <div class="info-box">
+                        <h3 class="user-name" id="card-name">Nicky</h3>
+                        <span class="user-label">MEMBER ID</span>
+                        <div class="user-address" id="card-address">0812-3456-7890<br>Jakarta, Indonesia</div>
+                    </div>
+
+                    <!-- QR Box default-nya transparan menyatu dengan background kartu -->
+                    <div class="qr-box" id="qr-box">
+                        <img id="qr-img" src="" alt="QR Code">
+                    </div>
+                </div>
+
+                <div class="deco-dots">● ● ● ● 10110</div>
+                <div class="card-glow-line"></div>
+            </div>
+
+            <button class="btn-download" onclick="downloadCard()">Download Gambar Kartu</button>
+        </div>
+    </div>
+
+    <script>
+        // Fungsi update teks secara live
+        function updateCard() {
+            document.getElementById('card-brand').innerText = document.getElementById('input-brand').value;
+            document.getElementById('card-name').innerText = document.getElementById('input-name').value;
+            
+            const addressText = document.getElementById('input-address').value;
+            document.getElementById('card-address').innerHTML = addressText.replace(/\n/g, '<br>');
+        }
+
+        // Fungsi mengubah warna tema secara dinamis
+        function changeColor() {
+            const select = document.getElementById('input-color');
+            const hexColor = select.value;
+            const rgbColor = select.options[select.selectedIndex].getAttribute('data-rgb');
+            
+            const card = document.getElementById('id-card');
+            card.style.setProperty('--primary-color', hexColor);
+            card.style.setProperty('--color-rgb', rgbColor);
+            document.documentElement.style.setProperty('--primary-color', hexColor);
+        }
+
+        // Fungsi membaca file upload dengan deteksi aktifasi container
+        function previewImage(input, targetImgId, parentId) {
+            const imgElement = document.getElementById(targetImgId);
+            const parentElement = document.getElementById(parentId);
+
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imgElement.src = e.target.result;
+                    // Jika yang diupload adalah QR, aktifkan background putihnya
+                    if(parentId === 'qr-box') {
+                        parentElement.classList.add('active');
+                    }
+                }
+                reader.readAsDataURL(input.files[0]);
+            } else {
+                imgElement.src = "";
+                parentElement.classList.remove('active');
+            }
+        }
+
+        // Fungsi untuk men-download kartu sebagai PNG
+        function downloadCard() {
+            const card = document.getElementById('id-card');
+            const userName = document.getElementById('input-name').value || 'id-card';
+            
+            html2canvas(card, {
+                useCORS: true,
+                scale: 3, 
+                backgroundColor: null
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = `ID_Card_${userName}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            });
+        }
+    </script>
+</body>
+</html>
